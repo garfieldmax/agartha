@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import QueryProvider from "@/components/query-provider";
-import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,9 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Next + Supabase Starter",
-  description:
-    "Next.js 15 Supabase Starter CLI tool that bootstraps a Next.js 15 project with Supabase, React Query, and built-in authentication for rapid development. 🚀",
+  title: "Agartha Dashboard",
+  description: "Prototype dashboard scaffold with Supabase auth and data",
 };
 
 export default function RootLayout({
@@ -26,13 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <QueryProvider>
-          {children}
-          <Toaster position="top-center" duration={3000} />
-        </QueryProvider>
+        className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 text-slate-900 antialiased min-h-screen`}
+      >
+        {children}
       </body>
     </html>
   );
