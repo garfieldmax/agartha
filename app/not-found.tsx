@@ -1,36 +1,30 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { AlertCircle, ChevronLeft, Home } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background px-4 mx-auto">
-      <div className="w-full max-w-3xl py-8 text-center">
-        <div className="mb-8">
-          <AlertCircle className="mx-auto h-16 w-16 text-destructive" />
-          <h1 className="mt-6 text-3xl font-bold tracking-tight text-foreground">
-            Page not found
-          </h1>
-          <p className="mt-4 text-base text-muted-foreground">
-            Oops! Something went wrong. The page you’re looking for might have
-            been moved, deleted, or temporarily unavailable. Please check the
-            URL or return to the homepage. If the issue persists, contact
-            support for assistance.
+    <div className="flex min-h-dvh items-center justify-center bg-white px-4 py-12">
+      <div className="mx-auto w-full max-w-xl space-y-6 text-center">
+        <div className="space-y-2">
+          <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">404</p>
+          <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">Page not found</h1>
+          <p className="text-base text-slate-600">
+            The page you are looking for might have been removed, renamed, or is
+            temporarily unavailable.
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild variant="outline">
-            <Link href="/" className="inline-flex items-center">
-              <ChevronLeft className="mr-2 h-4 w-4" />
-              Go back
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/" className="inline-flex items-center">
-              <Home className="mr-2 h-4 w-4" />
-              Home
-            </Link>
-          </Button>
+        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center rounded-md border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            Go back
+          </Link>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+          >
+            Dashboard
+          </Link>
         </div>
       </div>
     </div>
