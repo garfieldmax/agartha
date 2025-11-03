@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+
 import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -15,17 +17,30 @@ export default function LoginPage() {
     setError(null);
     setMessage(null);
 
+    const trimmedEmail = email.trim();
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      setError("Please add a name so teammates know who you are.");
+      setPending(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithOtp({
-      email,
+      email: trimmedEmail,
       options: {
         emailRedirectTo: `${window.location.origin}/dashboard`,
+        data: { display_name: trimmedName },
+        shouldCreateUser: true,
       },
     });
 
     if (error) {
       setError(error.message);
     } else {
-      setMessage("Check your inbox for a login link.");
+      setMessage(
+        "Check your inbox for the sign-in link. Once you follow it, we’ll finish setting up your profile."
+      );
     }
 
     setPending(false);
@@ -37,10 +52,22 @@ export default function LoginPage() {
         <div className="space-y-2 text-center">
           <h1 className="text-2xl font-semibold text-slate-900">Welcome back</h1>
           <p className="text-sm text-slate-500">
-            Sign in with the email address associated with your Supabase account.
+            Enter your email and the name you’d like teammates to see. We’ll create
+            your account if it doesn’t exist yet.
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <label className="block text-sm font-medium text-slate-700">
+            Name
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              className="mt-1 w-full rounded-md border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-200"
+              placeholder="Ada Lovelace"
+            />
+          </label>
           <label className="block text-sm font-medium text-slate-700">
             Email
             <input

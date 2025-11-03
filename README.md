@@ -7,8 +7,8 @@ for production hardening later.
 
 ## Features
 
-- **Authentication** – Supabase email-link/password sign-in with server helpers
-  for redirects and protected routes.
+- **Authentication** – Supabase magic-link sign-in that captures a display name
+  for new users while keeping redirects and protected routes server-enforced.
 - **Dashboard shell** – Responsive top bar plus mobile/desktop tab navigation for
   Users and Communities sections.
 - **Server-first data flow** – Server Components and Server Actions fetch and
@@ -71,6 +71,22 @@ public/                       # Static assets
      adjust as needed for your project).
    - Configure email link auth in the Supabase dashboard so the login flow can
      send magic links.
+
+## Database setup & seed data
+
+Run the Supabase SQL script to provision tables, RLS policies, and starter
+records. Execute it with the Supabase CLI or any Postgres client:
+
+```bash
+# Using the Supabase CLI (requires `supabase login` first)
+supabase db execute --file supabase/schema.sql --project-ref <project-ref>
+
+# Or with psql
+psql "$SUPABASE_DB_URL" -f supabase/schema.sql
+```
+
+The seed block at the bottom of `supabase/schema.sql` adds a sample community,
+residency, and manager membership for the current user.
 
 ## Deployment
 
