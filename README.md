@@ -9,6 +9,8 @@ for production hardening later.
 
 - **Authentication** – Supabase magic-link sign-in that captures a display name
   for new users while keeping redirects and protected routes server-enforced.
+  When Supabase auth isn't connected yet, the app automatically falls back to a
+  read-only demo session so you can explore the dashboard immediately.
 - **Dashboard shell** – Responsive top bar plus mobile/desktop tab navigation for
   Users and Communities sections.
 - **Server-first data flow** – Server Components and Server Actions fetch and
@@ -23,7 +25,7 @@ for production hardening later.
 ```
 app/
   layout.tsx                  # Root fonts + global styles
-  page.tsx                    # Redirects to /dashboard or /login
+  page.tsx                    # Redirects to /dashboard
   not-found.tsx               # Minimal 404 screen
   (auth)/login/page.tsx       # Magic-link login form
   (dashboard)/dashboard/
@@ -71,6 +73,9 @@ public/                       # Static assets
      adjust as needed for your project).
    - Configure email link auth in the Supabase dashboard so the login flow can
      send magic links.
+
+   Until Supabase auth is wired up, visiting `/dashboard` shows the interface
+   with seeded demo data and a banner indicating that you're in read-only mode.
 
 ## Database setup & seed data
 

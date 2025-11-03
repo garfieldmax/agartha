@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { supabaseServer } from "@/lib/supabaseServer";
+import { DEMO_PROFILES } from "@/lib/demo-data";
 
 export type Profile = {
   id: string;
@@ -13,24 +14,39 @@ export type Profile = {
 };
 
 export async function listProfiles(search?: string): Promise<Profile[]> {
-  const supabase = supabaseServer();
-  let query = supabase
-    .from("profiles")
-    .select("id, display_name, avatar_url, level, created_at, updated_at")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const fallback = () => {
+    if (!search) {
+      return DEMO_PROFILES;
+    }
 
-  if (search) {
-    query = query.ilike("display_name", `%${search}%`);
+    const normalized = search.toLowerCase();
+    return DEMO_PROFILES.filter((profile) =>
+      profile.display_name.toLowerCase().includes(normalized)
+    );
+  };
+
+  try {
+    const supabase = supabaseServer();
+    let query = supabase
+      .from("profiles")
+      .select("id, display_name, avatar_url, level, created_at, updated_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (search) {
+      query = query.ilike("display_name", `%${search}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    return data ?? [];
+  } catch {
+    return fallback();
   }
-
-  const { data, error } = await query;
-
-  if (error) {
-    throw error;
-  }
-
-  return data ?? [];
 }
 
 export async function upsertProfile(input: {

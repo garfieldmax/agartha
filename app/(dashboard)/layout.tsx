@@ -1,13 +1,20 @@
 import type { ReactNode } from "react";
 
-import { requireUser } from "@/lib/auth";
+import { getUser } from "@/lib/auth";
 import { ensureProfile } from "@/lib/profile";
 
 export default async function DashboardGroupLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
-  const user = await requireUser();
-  await ensureProfile(user);
+  const user = await getUser();
+
+  if (user) {
+    try {
+      await ensureProfile(user);
+    } catch {
+      // Ignore profile provisioning issues when running in demo mode without Supabase auth
+    }
+  }
 
   return <>{children}</>;
 }

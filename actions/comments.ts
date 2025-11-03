@@ -2,9 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { supabaseServer } from "@/lib/supabaseServer";
+import { DEMO_COMMENTS } from "@/lib/demo-data";
 
 export type CommentWithAuthor = {
   id: string;
+  subject_type: CommentSubject;
+  subject_id: string;
   author_id: string;
   body: string;
   created_at: string;
@@ -21,22 +24,28 @@ export async function listComments(
   subject_type: CommentSubject,
   subject_id: string
 ): Promise<CommentWithAuthor[]> {
-  const supabase = supabaseServer();
-  const { data, error } = await supabase
-    .from("comments")
-    .select(
-      "id, author_id, body, created_at, updated_at, profiles:author_id(display_name, avatar_url)"
-    )
-    .eq("subject_type", subject_type)
-    .eq("subject_id", subject_id)
-    .order("created_at", { ascending: false })
-    .limit(50);
+  try {
+    const supabase = supabaseServer();
+    const { data, error } = await supabase
+      .from("comments")
+      .select(
+        "id, subject_type, subject_id, author_id, body, created_at, updated_at, profiles:author_id(display_name, avatar_url)"
+      )
+      .eq("subject_type", subject_type)
+      .eq("subject_id", subject_id)
+      .order("created_at", { ascending: false })
+      .limit(50);
 
-  if (error) {
-    throw error;
+    if (error) {
+      throw error;
+    }
+
+    return data ?? [];
+  } catch {
+    return DEMO_COMMENTS.filter(
+      (comment) => comment.subject_type === subject_type && comment.subject_id === subject_id
+    );
   }
-
-  return data ?? [];
 }
 
 export async function addComment(input: {
