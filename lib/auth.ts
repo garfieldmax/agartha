@@ -34,6 +34,20 @@ export async function getUser(): Promise<User | null> {
     return user;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    // Handle build-time dynamic server errors gracefully
+    // This happens when Next.js tries to statically generate pages that use cookies
+    const isDynamicServerError =
+      errorMessage.includes("Dynamic server usage") ||
+      errorMessage.includes("couldn't be rendered statically") ||
+      errorMessage.includes("cookies");
+
+    if (isDynamicServerError) {
+      // During build time, cookies aren't available - return null gracefully
+      // The route should be marked as dynamic anyway
+      return null;
+    }
+
     const isNetworkError =
       errorMessage.includes("ENOTFOUND") ||
       errorMessage.includes("ETIMEDOUT") ||

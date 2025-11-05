@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabaseServer";
 
+// Mark root route as dynamic since it uses cookies for authentication
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   try {
     const supabase = await supabaseServer();

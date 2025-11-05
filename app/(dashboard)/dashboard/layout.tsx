@@ -5,6 +5,9 @@ import { getUser } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabaseServer";
 import { DEMO_USER } from "@/lib/demo-data";
 
+// Mark dashboard routes as dynamic since they use cookies for authentication
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardShell({
   children,
 }: Readonly<{ children: ReactNode }>) {
