@@ -14,7 +14,7 @@ export default async function DashboardShell({
 
   if (user) {
     try {
-      const supabase = supabaseServer();
+      const supabase = await supabaseServer();
       const { data: profile } = await supabase
         .from("profiles")
         .select("display_name")

@@ -14,7 +14,7 @@ function deriveDisplayName(user: User) {
 }
 
 export async function ensureProfile(user: User) {
-  const supabase = supabaseServer();
+  const supabase = await supabaseServer();
 
   const { data: existing, error: fetchError } = await supabase
     .from("profiles")

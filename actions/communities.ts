@@ -27,7 +27,8 @@ export async function listCommunities(search?: string): Promise<Community[]> {
   };
 
   try {
-    const supabase = supabaseServer();
+    console.log("[listCommunities] Attempting Supabase query", { search });
+    const supabase = await supabaseServer();
     let query = supabase
       .from("communities")
       .select("id, name, description, created_at, updated_at, created_by")
@@ -41,18 +42,44 @@ export async function listCommunities(search?: string): Promise<Community[]> {
     const { data, error } = await query;
 
     if (error) {
+      console.error("[listCommunities] Supabase query error:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       throw error;
     }
 
+    console.log("[listCommunities] Query successful, returned", data?.length ?? 0, "communities");
     return data ?? [];
-  } catch {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isNetworkError =
+      errorMessage.includes("ENOTFOUND") ||
+      errorMessage.includes("ETIMEDOUT") ||
+      errorMessage.includes("ECONNREFUSED") ||
+      errorMessage.includes("getaddrinfo") ||
+      errorMessage.includes("timeout");
+
+    console.error("[listCommunities] Exception caught:", {
+      error: errorMessage,
+      isNetworkError,
+      errorType: error instanceof Error ? error.constructor.name : typeof error,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
+    if (isNetworkError) {
+      console.error("[listCommunities] ⚠️ Network/DNS error detected - falling back to demo data");
+    }
+
     return fallback();
   }
 }
 
 export async function getCommunityWithResidencies(id: string) {
   try {
-    const supabase = supabaseServer();
+    const supabase = await supabaseServer();
     const { data, error } = await supabase
       .from("communities")
       .select(
@@ -98,7 +125,7 @@ export async function upsertCommunity(input: {
   name: string;
   description?: string | null;
 }) {
-  const supabase = supabaseServer();
+  const supabase = await supabaseServer();
   const payload = {
     id: input.id,
     name: input.name,

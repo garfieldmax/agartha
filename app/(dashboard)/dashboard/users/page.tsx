@@ -4,9 +4,10 @@ import { UserList } from "@/components/users/UserList";
 export default async function UsersPage({
   searchParams,
 }: {
-  searchParams?: { q?: string };
+  searchParams?: Promise<{ q?: string }>;
 }) {
-  const query = searchParams?.q ?? "";
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams?.q ?? "";
   const profiles = await listProfiles(query ? query : undefined);
 
   return (

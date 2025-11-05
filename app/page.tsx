@@ -2,14 +2,40 @@ import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabaseServer";
 
 export default async function Home() {
-  const supabase = supabaseServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await supabaseServer();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-  if (user) {
+    // Handle "no session" as normal case
+    if (error) {
+      const isNoSessionError =
+        error.status === 400 &&
+        (error.message === "Auth session missing!" ||
+          error.message.includes("session"));
+      if (!isNoSessionError) {
+        console.error("[Home] Auth error:", error.message);
+      }
+    }
+
+    if (user) {
+      redirect("/dashboard");
+    }
+
+    redirect("/dashboard");
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isNetworkError = errorMessage.includes("ENOTFOUND") ||
+      errorMessage.includes("ETIMEDOUT") ||
+      errorMessage.includes("getaddrinfo");
+
+    if (isNetworkError) {
+      console.error("[Home] Network error:", errorMessage);
+    } else {
+      console.error("[Home] Unexpected error:", errorMessage);
+    }
     redirect("/dashboard");
   }
-
-  redirect("/dashboard");
 }
