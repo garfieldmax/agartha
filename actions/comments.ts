@@ -25,7 +25,7 @@ export async function listComments(
   subject_id: string
 ): Promise<CommentWithAuthor[]> {
   try {
-    const supabase = supabaseServer();
+    const supabase = await supabaseServer();
     const { data, error } = await supabase
       .from("comments")
       .select(
@@ -53,7 +53,7 @@ export async function addComment(input: {
   subject_id: string;
   body: string;
 }) {
-  const supabase = supabaseServer();
+  const supabase = await supabaseServer();
   const {
     data: { user },
     error: authError,

@@ -16,7 +16,7 @@ export async function listResidenciesByCommunity(
   communityId: string
 ): Promise<Residency[]> {
   try {
-    const supabase = supabaseServer();
+    const supabase = await supabaseServer();
     const { data, error } = await supabase
       .from("residencies")
       .select("id, community_id, name, description, created_at, updated_at")

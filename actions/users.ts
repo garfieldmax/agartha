@@ -26,7 +26,8 @@ export async function listProfiles(search?: string): Promise<Profile[]> {
   };
 
   try {
-    const supabase = supabaseServer();
+    console.log("[listProfiles] Attempting Supabase query", { search });
+    const supabase = await supabaseServer();
     let query = supabase
       .from("profiles")
       .select("id, display_name, avatar_url, level, created_at, updated_at")
@@ -40,11 +41,37 @@ export async function listProfiles(search?: string): Promise<Profile[]> {
     const { data, error } = await query;
 
     if (error) {
+      console.error("[listProfiles] Supabase query error:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
       throw error;
     }
 
+    console.log("[listProfiles] Query successful, returned", data?.length ?? 0, "profiles");
     return data ?? [];
-  } catch {
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isNetworkError =
+      errorMessage.includes("ENOTFOUND") ||
+      errorMessage.includes("ETIMEDOUT") ||
+      errorMessage.includes("ECONNREFUSED") ||
+      errorMessage.includes("getaddrinfo") ||
+      errorMessage.includes("timeout");
+
+    console.error("[listProfiles] Exception caught:", {
+      error: errorMessage,
+      isNetworkError,
+      errorType: error instanceof Error ? error.constructor.name : typeof error,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
+    if (isNetworkError) {
+      console.error("[listProfiles] ⚠️ Network/DNS error detected - falling back to demo data");
+    }
+
     return fallback();
   }
 }
@@ -54,7 +81,7 @@ export async function upsertProfile(input: {
   display_name: string;
   level?: string;
 }) {
-  const supabase = supabaseServer();
+  const supabase = await supabaseServer();
   const { error } = await supabase
     .from("profiles")
     .upsert({

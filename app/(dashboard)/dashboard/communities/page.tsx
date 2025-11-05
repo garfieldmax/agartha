@@ -4,9 +4,10 @@ import { CommunityList } from "@/components/communities/CommunityList";
 export default async function CommunitiesPage({
   searchParams,
 }: {
-  searchParams?: { q?: string };
+  searchParams?: Promise<{ q?: string }>;
 }) {
-  const query = searchParams?.q ?? "";
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams?.q ?? "";
   const communities = await listCommunities(query ? query : undefined);
 
   return (
