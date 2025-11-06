@@ -13,9 +13,9 @@ create type public.comment_subject as enum (
   'community'
 );
 
--- Profiles (extend auth.users)
+-- Profiles (use Privy user IDs)
 create table if not exists public.profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
+  id text primary key,
   display_name text not null,
   avatar_url text,
   level public.user_level not null default 'unchecked',
@@ -29,7 +29,7 @@ create table if not exists public.communities (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   description text,
-  created_by uuid references auth.users(id) on delete set null,
+  created_by text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -49,7 +49,7 @@ create index if not exists idx_residencies_community on public.residencies(commu
 -- Community membership / roles
 create table if not exists public.community_members (
   community_id uuid not null references public.communities(id) on delete cascade,
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id text not null,
   role text not null check (role in ('member','manager')),
   primary key (community_id, user_id)
 );
@@ -58,7 +58,7 @@ create index if not exists idx_commembers_user on public.community_members(user_
 -- Comments (polymorphic via subject_type + subject_id)
 create table if not exists public.comments (
   id uuid primary key default gen_random_uuid(),
-  author_id uuid not null references auth.users(id) on delete cascade,
+  author_id text not null,
   subject_type public.comment_subject not null,
   subject_id uuid not null,
   body text not null,
@@ -100,150 +100,16 @@ create trigger trg_comments_updated
 before update on public.comments
 for each row execute function public.set_updated_at();
 
--- Enable row level security
-alter table public.profiles enable row level security;
-alter table public.communities enable row level security;
-alter table public.residencies enable row level security;
-alter table public.community_members enable row level security;
-alter table public.comments enable row level security;
+-- Disable row level security (using Privy auth handled in application code)
+-- RLS policies depend on auth.uid() which doesn't work with Privy
+alter table public.profiles disable row level security;
+alter table public.communities disable row level security;
+alter table public.residencies disable row level security;
+alter table public.community_members disable row level security;
+alter table public.comments disable row level security;
 
--- Profile policies
-create policy if not exists profiles_read on public.profiles
-for select using (auth.role() = 'authenticated');
+-- RLS policies removed - authorization handled in application code with Privy
+-- All policies above depended on auth.uid() and auth.role() which don't work with Privy
 
-create policy if not exists profiles_insert_self on public.profiles
-for insert with check (auth.uid() = id);
-
-create policy if not exists profiles_update_self on public.profiles
-for update using (auth.uid() = id);
-
-create policy if not exists profiles_update_by_manager on public.profiles
-for update using (
-  exists (
-    select 1 from public.community_members cm1
-    join public.community_members cm2 on cm1.community_id = cm2.community_id
-    where cm1.user_id = auth.uid()
-      and cm1.role = 'manager'
-      and cm2.user_id = profiles.id
-  )
-);
-
--- Community policies
-create policy if not exists communities_read on public.communities
-for select using (auth.role() = 'authenticated');
-
-create policy if not exists communities_write_managers on public.communities
-for all using (
-  exists (
-    select 1 from public.community_members cm
-    where cm.community_id = communities.id
-      and cm.user_id = auth.uid()
-      and cm.role = 'manager'
-  )
-) with check (
-  exists (
-    select 1 from public.community_members cm
-    where cm.community_id = communities.id
-      and cm.user_id = auth.uid()
-      and cm.role = 'manager'
-  )
-);
-
--- Residency policies
-create policy if not exists residencies_read on public.residencies
-for select using (auth.role() = 'authenticated');
-
-create policy if not exists residencies_write_managers on public.residencies
-for all using (
-  exists (
-    select 1 from public.community_members cm
-    where cm.community_id = residencies.community_id
-      and cm.user_id = auth.uid()
-      and cm.role = 'manager'
-  )
-) with check (
-  exists (
-    select 1 from public.community_members cm
-    where cm.community_id = residencies.community_id
-      and cm.user_id = auth.uid()
-      and cm.role = 'manager'
-  )
-);
-
--- Community member policies
-create policy if not exists commembers_read on public.community_members
-for select using (auth.role() = 'authenticated');
-
-create policy if not exists commembers_write_mgr on public.community_members
-for all using (
-  exists (
-    select 1 from public.community_members cm
-    where cm.community_id = community_members.community_id
-      and cm.user_id = auth.uid()
-      and cm.role = 'manager'
-  )
-) with check (
-  exists (
-    select 1 from public.community_members cm
-    where cm.community_id = community_members.community_id
-      and cm.user_id = auth.uid()
-      and cm.role = 'manager'
-  )
-);
-
--- Comment policies
-create policy if not exists comments_read on public.comments
-for select using (auth.role() = 'authenticated');
-
-create policy if not exists comments_insert on public.comments
-for insert with check (auth.role() = 'authenticated');
-
-create policy if not exists comments_write_author on public.comments
-for all using (author_id = auth.uid());
-
-create policy if not exists comments_write_mgr_comm on public.comments
-for all using (
-  (subject_type in ('community','residency'))
-  and exists (
-    select 1 from public.community_members cm
-    where cm.user_id = auth.uid()
-      and cm.role = 'manager'
-      and (
-        (subject_type = 'community' and cm.community_id = subject_id)
-        or (
-          subject_type = 'residency' and cm.community_id = (
-            select r.community_id from public.residencies r where r.id = subject_id
-          )
-        )
-      )
-  )
-);
-
-create policy if not exists comments_write_mgr_user on public.comments
-for all using (
-  subject_type = 'user'
-  and exists (
-    select 1 from public.community_members cm1
-    join public.community_members cm2 on cm1.community_id = cm2.community_id
-    where cm1.user_id = auth.uid()
-      and cm1.role = 'manager'
-      and cm2.user_id = subject_id
-  )
-);
-
--- Seed helpers
-insert into public.communities (name, description, created_by)
-values ('Evergreen Co-Living', 'A friendly urban co-living community.', auth.uid())
-on conflict do nothing;
-
-insert into public.residencies (community_id, name, description)
-select id, 'Unit A', 'Two-bedroom unit'
-from public.communities
-where name = 'Evergreen Co-Living'
-on conflict do nothing;
-
-insert into public.community_members (community_id, user_id, role)
-select id, auth.uid(), 'manager'
-from public.communities
-where name = 'Evergreen Co-Living'
-on conflict do nothing;
+-- Seed helpers (removed auth.uid() references - seed data should be created via application code)
+-- Note: If you need to seed initial data, use a specific Privy user ID instead of auth.uid()

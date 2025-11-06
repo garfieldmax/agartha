@@ -25,12 +25,12 @@ export default async function DashboardShell({
         .maybeSingle();
 
       displayName = profile?.display_name ?? null;
-      if (!displayName && typeof user.user_metadata?.display_name === "string") {
-        displayName = user.user_metadata.display_name;
+      if (!displayName && user.email) {
+        displayName = user.email.split("@")[0] ?? null;
       }
     } catch {
-      if (typeof user.user_metadata?.display_name === "string") {
-        displayName = user.user_metadata.display_name;
+      if (user.email) {
+        displayName = user.email.split("@")[0] ?? null;
       }
     }
   } else {
@@ -44,7 +44,7 @@ export default async function DashboardShell({
       {!user && (
         <div className="border-b border-dashed bg-amber-50 text-amber-900">
           <div className="mx-auto w-full max-w-6xl px-4 py-2 text-sm">
-            Demo mode: connect Supabase auth to enable sign-in and live data.
+            Demo mode: connect Privy auth to enable sign-in and live data.
           </div>
         </div>
       )}

@@ -1,27 +1,12 @@
 import { redirect } from "next/navigation";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { getUser } from "@/lib/auth";
 
 // Mark root route as dynamic since it uses cookies for authentication
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
   try {
-    const supabase = await supabaseServer();
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    // Handle "no session" as normal case
-    if (error) {
-      const isNoSessionError =
-        error.status === 400 &&
-        (error.message === "Auth session missing!" ||
-          error.message.includes("session"));
-      if (!isNoSessionError) {
-        console.error("[Home] Auth error:", error.message);
-      }
-    }
+    const user = await getUser();
 
     if (user) {
       redirect("/dashboard");

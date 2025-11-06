@@ -53,7 +53,7 @@ export async function EntityComments({
         </button>
         {!canComment && (
           <p className="text-xs text-slate-500">
-            Sign in to add new notes. Without an authenticated Supabase session the dashboard runs in read-only demo mode.
+            Sign in to add new notes. Without an authenticated Privy session the dashboard runs in read-only demo mode.
           </p>
         )}
       </form>

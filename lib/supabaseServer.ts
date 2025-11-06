@@ -1,6 +1,7 @@
-import { cookies } from "next/headers";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 
+// Create unauthenticated Supabase client for database queries only
+// Authentication is handled by Privy, not Supabase
 export async function supabaseServer() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -15,22 +16,9 @@ export async function supabaseServer() {
     throw new Error("Missing Supabase environment variables");
   }
 
-  const cookieStore = await cookies();
-
   try {
-    const client = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        get: (name: string) => cookieStore.get(name)?.value,
-        set: (name: string, value: string, options: CookieOptions) => {
-          cookieStore.set(name, value, options);
-        },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        remove: (name: string, _options: CookieOptions) => {
-          cookieStore.delete(name);
-        },
-      },
-    });
-
+    // Create a simple client without auth session handling
+    const client = createClient(supabaseUrl, supabaseAnonKey);
     return client;
   } catch (error) {
     console.error("[Supabase] Failed to create client:", {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabaseServer";
+import { getPrivyUser } from "@/lib/privyServer";
 
 export async function GET() {
   const diagnostics: Record<string, unknown> = {
@@ -9,6 +10,8 @@ export async function GET() {
       hasKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       url: process.env.NEXT_PUBLIC_SUPABASE_URL || "missing",
       keyLength: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length || 0,
+      hasPrivyAppId: !!process.env.NEXT_PUBLIC_PRIVY_APP_ID,
+      hasPrivySecret: !!process.env.PRIVY_APP_SECRET,
     },
   };
 
@@ -41,28 +44,15 @@ export async function GET() {
       };
     }
 
-    // Test 2: Auth check
-    console.log("[API Test] Testing auth");
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    // Test 2: Privy auth check
+    console.log("[API Test] Testing Privy auth");
+    const privyUser = await getPrivyUser();
 
-    if (authError) {
-      diagnostics.authCheck = {
-        success: false,
-        error: {
-          status: authError.status,
-          message: authError.message,
-        },
-      };
-    } else {
-      diagnostics.authCheck = {
-        success: true,
-        hasUser: !!user,
-        userId: user?.id,
-      };
-    }
+    diagnostics.authCheck = {
+      success: true,
+      hasUser: !!privyUser,
+      userId: privyUser?.id,
+    };
 
     diagnostics.overallStatus = "success";
     diagnostics.message = "Supabase connection test completed";

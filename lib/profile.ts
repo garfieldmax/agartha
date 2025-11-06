@@ -1,13 +1,17 @@
-import type { User } from "@supabase/supabase-js";
+import type { User } from "@/lib/auth";
 import { supabaseServer } from "@/lib/supabaseServer";
 
 function deriveDisplayName(user: User) {
-  if (typeof user.user_metadata?.display_name === "string" && user.user_metadata.display_name.trim()) {
-    return user.user_metadata.display_name.trim();
-  }
-
   if (user.email) {
     return user.email.split("@")[0] ?? "User";
+  }
+
+  // Try to get name from wallet address if available
+  const walletAccount = user.linkedAccounts.find(
+    (account) => account.type === "wallet"
+  );
+  if (walletAccount?.address) {
+    return `${walletAccount.address.slice(0, 6)}...${walletAccount.address.slice(-4)}`;
   }
 
   return "User";
@@ -31,10 +35,7 @@ export async function ensureProfile(user: User) {
   }
 
   const displayName = deriveDisplayName(user);
-  const avatarUrl =
-    typeof user.user_metadata?.avatar_url === "string"
-      ? user.user_metadata.avatar_url
-      : null;
+  const avatarUrl = null; // Privy doesn't provide avatar_url in the same way
 
   const { data, error } = await supabase
     .from("profiles")

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { PrivyProviderWrapper } from "@/components/PrivyProviderWrapper";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Agartha Dashboard",
-  description: "Prototype dashboard scaffold with Supabase auth and data",
+  description: "Prototype dashboard scaffold with Privy auth and Supabase data",
 };
 
 export default function RootLayout({
@@ -27,7 +28,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-slate-50 text-slate-900 antialiased min-h-screen`}
       >
-        {children}
+        <PrivyProviderWrapper>
+          {children}
+        </PrivyProviderWrapper>
       </body>
     </html>
   );

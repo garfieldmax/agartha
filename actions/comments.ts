@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { supabaseServer } from "@/lib/supabaseServer";
+import { requireUser } from "@/lib/auth";
 import { DEMO_COMMENTS } from "@/lib/demo-data";
 
 export type CommentWithAuthor = {
@@ -60,20 +61,9 @@ export async function addComment(input: {
   subject_id: string;
   body: string;
 }) {
+  const user = await requireUser();
+
   const supabase = await supabaseServer();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError) {
-    throw authError;
-  }
-
-  if (!user) {
-    throw new Error("Not authenticated");
-  }
-
   const { error } = await supabase.from("comments").insert({
     subject_type: input.subject_type,
     subject_id: input.subject_id,
