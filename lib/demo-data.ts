@@ -47,7 +47,7 @@ export const DEMO_COMMUNITIES: Community[] = [
     description: "Waterfront makerspace with artist residencies.",
     created_at: new Date(NOW.getTime() - 1000 * 60 * 60 * 24 * 45).toISOString(),
     updated_at: NOW.toISOString(),
-    created_by: "22222222-2222-4222-8222-222222222222",
+    created_by: "55555555-5555-5555-8555-555555555555",
   },
 ];
 
@@ -87,7 +87,7 @@ export const DEMO_COMMENTS: CommentWithAuthor[] = [
     body: "Weekly dinner went great – lots of new faces and strong feedback.",
     created_at: new Date(NOW.getTime() - 1000 * 60 * 60 * 5).toISOString(),
     updated_at: NOW.toISOString(),
-    profiles: {
+    members: {
       display_name: "River Chen",
       avatar_url: null,
     },
@@ -100,7 +100,7 @@ export const DEMO_COMMENTS: CommentWithAuthor[] = [
     body: "Guests loved the welcome basket – restocked for next arrival.",
     created_at: new Date(NOW.getTime() - 1000 * 60 * 60 * 12).toISOString(),
     updated_at: NOW.toISOString(),
-    profiles: {
+    members: {
       display_name: "Avery Johnson",
       avatar_url: null,
     },
@@ -113,7 +113,7 @@ export const DEMO_COMMENTS: CommentWithAuthor[] = [
     body: "Marin is confirming travel – follow up on Monday.",
     created_at: new Date(NOW.getTime() - 1000 * 60 * 30).toISOString(),
     updated_at: NOW.toISOString(),
-    profiles: {
+    members: {
       display_name: "River Chen",
       avatar_url: null,
     },

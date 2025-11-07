@@ -20,10 +20,11 @@ function LoginForm() {
       redirectingRef.current = true;
       // Small delay to ensure cookies are set
       setTimeout(() => {
-        router.push("/dashboard");
+        const redirect = searchParams.get("redirect");
+        router.push(redirect || "/");
       }, 100);
     }
-  }, [authenticated, ready, router]);
+  }, [authenticated, ready, router, searchParams]);
 
   useEffect(() => {
     if (hasHydratedParamsRef.current) {

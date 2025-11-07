@@ -20,27 +20,27 @@ export async function GET() {
     const supabase = await supabaseServer();
     diagnostics.clientCreated = true;
 
-    // Test 1: Simple query to profiles table
-    console.log("[API Test] Testing profiles query");
-    const { data: profiles, error: profilesError } = await supabase
-      .from("profiles")
+    // Test 1: Simple query to members table
+    console.log("[API Test] Testing members query");
+    const { data: members, error: membersError } = await supabase
+      .from("members")
       .select("id")
       .limit(1);
 
-    if (profilesError) {
-      diagnostics.profilesQuery = {
+    if (membersError) {
+      diagnostics.membersQuery = {
         success: false,
         error: {
-          code: profilesError.code,
-          message: profilesError.message,
-          details: profilesError.details,
-          hint: profilesError.hint,
+          code: membersError.code,
+          message: membersError.message,
+          details: membersError.details,
+          hint: membersError.hint,
         },
       };
     } else {
-      diagnostics.profilesQuery = {
+      diagnostics.membersQuery = {
         success: true,
-        count: profiles?.length ?? 0,
+        count: members?.length ?? 0,
       };
     }
 
