@@ -6,7 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   test: {
-    environment: "jsdom",
+    environment: "node",
     globals: true,
     css: false,
   },
