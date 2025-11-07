@@ -99,5 +99,5 @@ export const OnboardingSubmissionSchema = z.object({
     .transform((value) => value.trim())
     .optional()
     .or(z.literal(""))
-    .transform((value) => (value.length > 0 ? value : undefined)),
+    .transform((value) => (value && value.length > 0 ? value : undefined)),
 });

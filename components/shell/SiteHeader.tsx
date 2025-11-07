@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { SiteNav } from "@/components/shell/SiteNav";
 import { UserMenu } from "@/components/shell/UserMenu";
@@ -44,7 +45,9 @@ export async function SiteHeader() {
           </Link>
         </div>
         <div className="flex justify-center">
-          <SiteNav canSeeMembers={canSeeMembers} />
+          <Suspense fallback={<div className="h-8 w-32" />}>
+            <SiteNav canSeeMembers={canSeeMembers} />
+          </Suspense>
         </div>
         <div className="flex flex-1 justify-end">
           {user ? (
