@@ -70,7 +70,7 @@ export async function EntityComments({
           >
             <div className="flex items-baseline justify-between gap-3">
               <span className="text-xs font-semibold text-slate-500">
-                {comment.profiles?.display_name ?? "Unknown"}
+                {comment.members?.display_name ?? "Unknown"}
               </span>
               <span className="text-xs text-slate-400">
                 {new Date(comment.created_at).toLocaleString()}

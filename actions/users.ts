@@ -29,7 +29,7 @@ export async function listProfiles(search?: string): Promise<Profile[]> {
     console.log("[listProfiles] Attempting Supabase query", { search });
     const supabase = await supabaseServer();
     let query = supabase
-      .from("profiles")
+      .from("members")
       .select("id, display_name, avatar_url, level, created_at, updated_at")
       .order("created_at", { ascending: false })
       .limit(50);
@@ -83,7 +83,7 @@ export async function upsertProfile(input: {
 }) {
   const supabase = await supabaseServer();
   const { error } = await supabase
-    .from("profiles")
+    .from("members")
     .upsert({
       id: input.id,
       display_name: input.display_name,

@@ -19,7 +19,7 @@ export default async function DashboardShell({
     try {
       const supabase = await supabaseServer();
       const { data: profile } = await supabase
-        .from("profiles")
+        .from("members")
         .select("display_name")
         .eq("id", user.id)
         .maybeSingle();

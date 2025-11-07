@@ -13,7 +13,7 @@ export type CommentWithAuthor = {
   body: string;
   created_at: string;
   updated_at: string;
-  profiles?: {
+  members?: {
     display_name: string | null;
     avatar_url: string | null;
   } | null;
@@ -30,7 +30,7 @@ export async function listComments(
     const { data, error } = await supabase
       .from("comments")
       .select(
-        "id, subject_type, subject_id, author_id, body, created_at, updated_at, profiles:author_id(display_name, avatar_url)"
+        "id, subject_type, subject_id, author_id, body, created_at, updated_at, members:author_id(display_name, avatar_url)"
       )
       .eq("subject_type", subject_type)
       .eq("subject_id", subject_id)
@@ -42,11 +42,11 @@ export async function listComments(
     }
 
     // Transform Supabase response to match CommentWithAuthor type
-    // Supabase returns profiles as an array, but we need a single object
+    // Supabase returns members as an array, but we need a single object
     return (data ?? []).map((comment) => ({
       ...comment,
-      profiles: Array.isArray(comment.profiles) && comment.profiles.length > 0
-        ? comment.profiles[0]
+      members: Array.isArray(comment.members) && comment.members.length > 0
+        ? comment.members[0]
         : null,
     }));
   } catch {

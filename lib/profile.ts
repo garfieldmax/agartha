@@ -21,7 +21,7 @@ export async function ensureProfile(user: User) {
   const supabase = await supabaseServer();
 
   const { data: existing, error: fetchError } = await supabase
-    .from("profiles")
+    .from("members")
     .select("id")
     .eq("id", user.id)
     .maybeSingle();
@@ -38,7 +38,7 @@ export async function ensureProfile(user: User) {
   const avatarUrl = null; // Privy doesn't provide avatar_url in the same way
 
   const { data, error } = await supabase
-    .from("profiles")
+    .from("members")
     .insert({
       id: user.id,
       display_name: displayName,

@@ -9,7 +9,9 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:apply": "node scripts/apply-schema.js"
+    "db:apply": "node scripts/apply-schema.js",
+    "db:seed": "node scripts/seed.js",
+    "db:setup": "node scripts/setup-db.js"
   },
   "dependencies": {
     "@privy-io/react-auth": "^3.6.0",

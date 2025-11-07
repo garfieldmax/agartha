@@ -165,6 +165,7 @@ create table if not exists public.communities (
   id uuid primary key default gen_random_uuid(),
   name text not null,
   description text,
+  created_by text references public.members(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -172,6 +173,9 @@ create index if not exists idx_communities_name on public.communities using gin 
 create trigger trg_communities_updated
 before update on public.communities
 for each row execute function public.set_updated_at();
+-- Ensure legacy databases pick up new column
+alter table public.communities
+  add column if not exists created_by text references public.members(id) on delete set null;
 
 -- Residencies
 create table if not exists public.residencies (
