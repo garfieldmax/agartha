@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
+import { CommunitySearchList } from "@/components/communities/CommunitySearchList";
 import { listMembers, listCommunities } from "@/lib/db/repo";
 import { getOnboardingStatus } from "@/lib/onboarding";
 
@@ -64,46 +64,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           ))}
         </div>
       ) : (
-        <div className="space-y-6">
-          <form className="flex flex-col gap-2 md:flex-row md:items-center" action="/">
-            <input type="hidden" name="tab" value="communities" />
-            <Input
-              name="q"
-              defaultValue={communitySearch}
-              placeholder="Search communities by name or description"
-              className="md:w-80"
-            />
-            <button
-              type="submit"
-              className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow hover:bg-slate-800"
-            >
-              Search
-            </button>
-            {communitySearch && (
-              <Link
-                href="/?tab=communities"
-                className="text-sm text-slate-500 transition hover:text-slate-700"
-              >
-                Clear
-              </Link>
-            )}
-          </form>
-          <div className="grid gap-6 md:grid-cols-2">
-            {communities.map((community) => (
-              <Link key={community.id} href={`/communities/${community.id}`}>
-                <Card className="space-y-2">
-                  <h2 className="text-lg font-semibold text-slate-900">{community.name}</h2>
-                  {community.description && <p className="text-sm text-slate-600">{community.description}</p>}
-                </Card>
-              </Link>
-            ))}
-            {communities.length === 0 && (
-              <Card className="p-6 text-sm text-slate-600">
-                No communities match your search yet. Try a different phrase or clear the filter.
-              </Card>
-            )}
-          </div>
-        </div>
+        <CommunitySearchList
+          communities={communities}
+          searchQuery={communitySearch}
+          formAction="/"
+          clearHref="/?tab=communities"
+          hiddenFields={[{ name: "tab", value: "communities" }]}
+        />
       )}
     </div>
   );
