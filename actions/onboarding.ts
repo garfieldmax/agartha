@@ -8,7 +8,12 @@ import { upsertOnboardingSubmission, updateMember } from "@/lib/db/repo";
 import { ensureProfile } from "@/lib/profile";
 import { getUser } from "@/lib/auth";
 
-export async function submitOnboarding(formData: FormData) {
+type FormState = {
+  error?: string;
+  fieldErrors?: Record<string, string[]>;
+};
+
+export async function submitOnboarding(formData: FormData): Promise<FormState | void> {
   const user = await getUser();
   if (!user) {
     redirect("/login?redirect=/onboarding");
@@ -27,28 +32,38 @@ export async function submitOnboarding(formData: FormData) {
   const parsed = OnboardingSubmissionSchema.safeParse(raw);
   if (!parsed.success) {
     console.error("Onboarding validation failed", parsed.error.flatten());
-    redirect("/onboarding?error=validation");
+    return {
+      error: "Something went wrong saving your answers. Please check the fields below and try again.",
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   const submission = parsed.data;
 
-  await upsertOnboardingSubmission({
-    member_id: member.id,
-    name: submission.name,
-    email: submission.email,
-    why_join: submission.whyJoin,
-    what_create: submission.whatCreate,
-    cool_fact: submission.coolFact,
-    links: submission.links ?? null,
-  });
+  try {
+    await upsertOnboardingSubmission({
+      member_id: member.id,
+      name: submission.name,
+      email: submission.email,
+      why_join: submission.whyJoin,
+      what_create: submission.whatCreate,
+      cool_fact: submission.coolFact,
+      links: submission.links ?? null,
+    });
 
-  await updateMember(member.id, {
-    display_name: submission.name,
-  });
+    await updateMember(member.id, {
+      display_name: submission.name,
+    });
 
-  revalidatePath("/");
-  revalidatePath("/members");
-  revalidatePath("/discover");
+    revalidatePath("/");
+    revalidatePath("/members");
+    revalidatePath("/discover");
 
-  redirect("/");
+    redirect("/");
+  } catch (error) {
+    console.error("Failed to save onboarding submission", error);
+    return {
+      error: "Failed to save your submission. Please try again.",
+    };
+  }
 }
