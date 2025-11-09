@@ -1,4 +1,4 @@
--- Reset script: drops legacy tables/types and reapplies the current Agartha schema.
+-- Reset script: drops legacy tables/types and reapplies the current Nostra Community schema.
 -- Usage (from repo root):
 --   psql "$SUPABASE_DB_URL" -f supabase/reset_schema.sql
 -- or via Supabase CLI:

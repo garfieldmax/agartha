@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 
-export const SESSION_COOKIE_NAME = "agartha-session";
+export const SESSION_COOKIE_NAME = "ncs-session";
 export const SESSION_MAX_AGE_SECONDS = 60 * 60; // 1 hour
 
 const SESSION_SECRET = process.env.SESSION_SECRET;

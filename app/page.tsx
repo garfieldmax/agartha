@@ -33,7 +33,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-semibold text-slate-900">Agartha Members</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">Nostra Community Members</h1>
         <p className="text-sm text-slate-600">
           Explore the community, discover collaborators, and celebrate great work.
         </p>

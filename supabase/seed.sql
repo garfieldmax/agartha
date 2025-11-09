@@ -1,4 +1,4 @@
--- Seed demo data for Agartha platform
+-- Seed demo data for Nostra Community platform
 -- This file populates the database with comprehensive sample data for all flows
 
 -- ============================================================================

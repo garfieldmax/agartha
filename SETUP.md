@@ -1,6 +1,6 @@
 # Database Setup Guide
 
-This guide will help you set up your Agartha database and populate it with demo data.
+This guide will help you set up your Nostra Community database and populate it with demo data.
 
 ## Issues Fixed
 
@@ -212,7 +212,7 @@ Once your database is set up and you can see the demo data:
 
 ## Additional Resources
 
-- [Agartha README](./README.md) - Product overview
+- [Nostra Community README](./README.md) - Product overview
 - [Data Model](./data.MD) - Database schema documentation
 - [User Flows](./flow.MD) - Application flows and features
 - [UI Documentation](./UI.MD) - Component library and surfaces

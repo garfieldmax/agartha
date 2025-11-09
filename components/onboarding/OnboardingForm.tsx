@@ -95,7 +95,7 @@ export function OnboardingForm({ defaultEmail }: OnboardingFormProps) {
               name="whyJoin"
               required
               rows={3}
-              placeholder="Let us know what drew you to Agartha."
+              placeholder="Let us know what drew you to Nostra Community."
               value={formData.whyJoin}
               onChange={handleChange("whyJoin")}
               disabled={isPending}
@@ -167,7 +167,7 @@ export function OnboardingForm({ defaultEmail }: OnboardingFormProps) {
             </button>
             <p className="text-xs text-slate-500">
               Need help?{" "}
-              <Link href="mailto:team@agartha.com" className="text-slate-700 underline">
+              <Link href="mailto:Nostra@nostrahub.com" className="text-slate-700 underline">
                 Email the team
               </Link>
               .

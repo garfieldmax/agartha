@@ -1,6 +1,6 @@
 # Agent Guidelines
 
-This project implements the Agartha members platform prototype using Next.js 15
+This project implements the Nostra Community members platform prototype using Next.js 15
 (App Router) with Tailwind styling, Supabase Postgres for persistence, and Privy
 for authentication. Keep these conventions in mind when making changes:
 

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Agartha Dashboard",
+  title: "Nostra Community Dashboard",
   description: "Prototype dashboard scaffold with Privy auth and Supabase data",
 };
 

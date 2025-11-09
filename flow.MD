@@ -1,6 +1,6 @@
 # Product Flows
 
-This guide walks through the primary end-to-end flows enabled by the Agartha prototype. Each flow references the API routes, repository helpers, and UI surfaces that collaborate to deliver the experience.
+This guide walks through the primary end-to-end flows enabled by the Nostra Community prototype. Each flow references the API routes, repository helpers, and UI surfaces that collaborate to deliver the experience.
 
 ## Authentication & session bootstrap
 

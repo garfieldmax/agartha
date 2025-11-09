@@ -21,7 +21,7 @@ export default async function OnboardingPage() {
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-semibold text-slate-900">Tell us about you</h1>
         <p className="text-sm text-slate-600">
-          Share a few details so the Agartha team can welcome you and match you with the right communities.
+          Share a few details so the Nostra Community team can welcome you and match you with the right communities.
         </p>
       </div>
       <OnboardingForm defaultEmail={email} />

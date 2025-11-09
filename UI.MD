@@ -1,6 +1,6 @@
 # UI Architecture
 
-The Agartha prototype leans on Tailwind CSS and lightweight React components to deliver a cohesive member experience. This reference maps major pages to their supporting components and highlights reusable primitives.
+The Nostra Community prototype leans on Tailwind CSS and lightweight React components to deliver a cohesive member experience. This reference maps major pages to their supporting components and highlights reusable primitives.
 
 ## Global primitives
 
