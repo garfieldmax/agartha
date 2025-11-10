@@ -27,11 +27,18 @@ This guide walks through the primary end-to-end flows enabled by the Nostra Comm
 3. [`lib/social/mutuals.ts`](./lib/social/mutuals.ts) resolves mutual connections for rendering in profile cards and the discovery page.
 4. `/discover` uses [`components/DiscoveryList.tsx`](./components/DiscoveryList.tsx) to highlight mutual connections first, then shared-interest suggestions.
 
+## Project management
+
+1. Community managers visiting `/communities/[id]` see a **New project** button powered by [`ProjectListSection`](./components/communities/ProjectListSection.tsx). It launches [`components/projects/ProjectForm.tsx`](./components/projects/ProjectForm.tsx), which posts to `/api/projects` using `ProjectCreateSchema` and the `createProject` repository helper.
+2. Editing an existing project opens the same form from [`ProjectPageShell`](./components/ProjectPageShell.tsx), targeting `/api/projects/[id]` (PATCH) to update name, description, or residency via `updateProject`.
+3. Both mutations revalidate the community page, project detail, and `/projects` index so managers and members immediately see the updates.
+
 ## Project participation
 
 1. `/projects/[id]` renders [`components/ProjectPageShell.tsx`](./components/ProjectPageShell.tsx) including roster, activity, and comments.
-2. Join/leave actions hit `/api/projects/[id]/join` or `/api/projects/[id]/leave`, which validate payloads, call participation repo helpers, and revalidate project routes.
-3. Active participations drive kudos budget allowances and roster sorting.
+2. Join requests post to `/api/projects/[id]/join`, which now derives the participation status server-side: residents/managers become `active` immediately while others are stored as `invited` pending approval.
+3. Community managers and project leads can approve pending members via `/api/projects/[id]/participants/[memberId]/approve`, which uses `setProjectParticipationStatus` to flip the record to `active` and revalidates the roster.
+4. Active participations drive kudos budget allowances and roster sorting. `/projects` lists each member's active participations using `listActiveParticipationsForMember`.
 
 ## Kudos budgeting & feed
 

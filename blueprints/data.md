@@ -23,7 +23,7 @@ Single-record form capturing the onboarding questionnaire for each authenticated
 Hierarchy describing where collaborations occur. Projects optionally belong to residencies and always to a community. Each project records the `created_by` member ID.
 
 ### project_participation
-Join table between members and projects. Tracks `role`, `status`, and timestamps (`joined_at`, `left_at`). The kudos budget engine counts participations with `status = 'active'` as of a given day.
+Join table between members and projects. Tracks `role`, `status`, and timestamps (`joined_at`, `left_at`). Member-initiated joins now create `invited` rows that require approval from a community manager or project lead unless the requester already has a resident/manager level, in which case the status is set to `active`. The kudos budget engine counts participations with `status = 'active'` as of a given day.
 
 ### kudos
 Peer recognition events linking a `from_member` and `to_member` with optional `project_id`, bounded `weight` (1–5), note, and timestamp. Indexed for recipient and sender feeds.
@@ -58,6 +58,7 @@ Custom Postgres enums define controlled vocabularies and are referenced througho
 The repository layer encapsulates access patterns and domain invariants:
 
 - CRUD helpers for members, contacts, interests, goals, communities, residencies, projects, participations, kudos, badges, connections, and comments.
+- Project helpers now include explicit `createProject`, `updateProject`, and `deleteProject` mutations plus a `setProjectParticipationStatus` utility used by approval flows.
 - Higher-level helpers for badge awarding (enforcing role-based rules), kudos budget accounting, and mutual connections lookups.
 - Input validation via Zod schemas in [`lib/db/validators.ts`](./lib/db/validators.ts) ensures shape and enum correctness before interacting with the database.
 

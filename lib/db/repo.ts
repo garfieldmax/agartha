@@ -200,11 +200,87 @@ export async function listProjects(filter?: { communityId?: string; residencyId?
   return data ?? [];
 }
 
+export async function createProject(input: {
+  community_id: string;
+  residency_id?: string | null;
+  name: string;
+  description?: string | null;
+  created_by: string;
+}): Promise<Project> {
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase
+    .from("projects")
+    .insert({
+      community_id: input.community_id,
+      residency_id: input.residency_id ?? null,
+      name: input.name,
+      description: input.description ?? null,
+      created_by: input.created_by,
+    })
+    .select("*")
+    .single();
+  if (error) handleError(error);
+  return data as Project;
+}
+
+export async function updateProject(
+  id: string,
+  patch: Partial<Pick<Project, "name" | "description" | "residency_id">>
+): Promise<Project> {
+  const supabase = await supabaseServer();
+  const update: Partial<Project> = {};
+  if (patch.name !== undefined) {
+    update.name = patch.name;
+  }
+  if (patch.description !== undefined) {
+    update.description = patch.description ?? null;
+  }
+  if (patch.residency_id !== undefined) {
+    update.residency_id = patch.residency_id ?? null;
+  }
+  const { data, error } = await supabase.from("projects").update(update).eq("id", id).select("*").single();
+  if (error) handleError(error);
+  return data as Project;
+}
+
+export async function deleteProject(id: string): Promise<void> {
+  const supabase = await supabaseServer();
+  const { error } = await supabase.from("projects").delete().eq("id", id);
+  if (error) handleError(error);
+}
+
 export async function getProject(id: string): Promise<Project | null> {
   const supabase = await supabaseServer();
   const { data, error } = await supabase.from("projects").select("*").eq("id", id).maybeSingle();
   if (error) handleError(error);
   return data;
+}
+
+export async function setProjectParticipationStatus(
+  projectId: string,
+  memberId: string,
+  status: ParticipationStatus
+): Promise<ProjectParticipation> {
+  const supabase = await supabaseServer();
+  const update: Partial<ProjectParticipation> & { left_at?: string | null } = { status };
+  if (status === "dropped") {
+    update.left_at = new Date().toISOString();
+  }
+  if (status === "active") {
+    update.left_at = null;
+  }
+  const { data, error } = await supabase
+    .from("project_participation")
+    .update(update)
+    .eq("project_id", projectId)
+    .eq("member_id", memberId)
+    .select("*, members(*)")
+    .single();
+  if (error) handleError(error);
+  if (!data) {
+    throw new AppError("Participation not found", "NOT_FOUND", { projectId, memberId });
+  }
+  return { ...data, member: (data as ProjectParticipation & { members: Member }).members };
 }
 
 export async function listProjectParticipants(projectId: string): Promise<ProjectParticipation[]> {
