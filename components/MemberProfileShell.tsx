@@ -95,10 +95,16 @@ export function MemberProfileShell({
   }, [toast]);
 
   useEffect(() => {
-    setProfileMember(member);
-    setDisplayName(member.display_name);
-    setBio(member.bio ?? "");
-  }, [member]);
+    if (member.id !== profileMember.id) {
+      // New member, reset everything.
+      setProfileMember(member);
+      setDisplayName(member.display_name);
+      setBio(member.bio ?? "");
+    } else if (member !== profileMember) {
+      // Same member, props updated. Only update base, not form fields.
+      setProfileMember(member);
+    }
+  }, [member, profileMember]);
 
   const projectsForKudos = Array.from(
     new Map(
@@ -164,7 +170,7 @@ export function MemberProfileShell({
       });
       const data = await response.json();
       if (!response.ok || !data.ok) {
-        throw new Error(data?.error?.message ?? "Failed to update bio");
+        throw new Error(data?.error?.message ?? "Failed to update profile");
       }
       setProfileMember((prev) => ({ ...prev, display_name: trimmedDisplayName, bio }));
       setToast("Profile updated");
