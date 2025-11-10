@@ -63,7 +63,6 @@ export async function syncAuthToken(token: string) {
 
       if (error.code === "UNAUTHENTICATED") {
         await clearSessionCookie();
-        return { success: false, error: "Failed to verify authentication" } as const;
       }
     }
 

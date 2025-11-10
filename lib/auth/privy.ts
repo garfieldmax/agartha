@@ -157,7 +157,8 @@ export async function fetchPrivyUser(token: string): Promise<SessionUser> {
     return sessionUser;
   }
 
-  throw new AppError("Privy service is temporarily unavailable", "SERVICE_UNAVAILABLE");
+  // This should never be reached due to retry logic, but TypeScript needs it
+  throw new AppError("Failed to verify Privy token after all retry attempts", "SERVICE_UNAVAILABLE");
 }
 
 export async function getSessionUser() {
