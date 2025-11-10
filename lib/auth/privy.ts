@@ -23,9 +23,35 @@ type PrivyApiResponse = {
 
 const TOKEN_CACHE_TTL_MS = 5 * 60 * 1000;
 const RATE_LIMIT_CACHE_TTL_MS = 15 * 60 * 1000;
+const MAX_RETRY_ATTEMPTS = 3;
+const DEFAULT_RETRY_AFTER_MS = 1000;
 
 const tokenCache = new Map<string, { user: SessionUser; expiresAt: number }>();
 const rateLimitCache = new Map<string, { user: SessionUser; expiresAt: number }>();
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getRetryDelay(response: Response) {
+  const retryAfter = response.headers.get("Retry-After");
+  if (!retryAfter) {
+    return DEFAULT_RETRY_AFTER_MS;
+  }
+
+  const retryAfterSeconds = Number(retryAfter);
+  if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds >= 0) {
+    return Math.max(Math.round(retryAfterSeconds * 1000), 0) || DEFAULT_RETRY_AFTER_MS;
+  }
+
+  const retryDate = Date.parse(retryAfter);
+  if (!Number.isNaN(retryDate)) {
+    const delay = retryDate - Date.now();
+    return delay > 0 ? delay : DEFAULT_RETRY_AFTER_MS;
+  }
+
+  return DEFAULT_RETRY_AFTER_MS;
+}
 
 function normalizeLinkedAccounts(accounts: PrivyApiUser["linked_accounts"]) {
   if (!Array.isArray(accounts)) {
@@ -51,79 +77,88 @@ export async function fetchPrivyUser(token: string): Promise<SessionUser> {
     return rateLimited.user;
   }
 
-  let response: Response;
-  try {
-    response = await fetch("https://auth.privy.io/api/v1/users/me", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "privy-app-id": PRIVY_APP_ID!,
-        "Content-Type": "application/json",
-      },
-    });
-  } catch (error) {
-    console.error("[fetchPrivyUser] Network error verifying Privy token", error);
-    if (cached) {
-      return cached.user;
-    }
-    throw new AppError("Failed to verify Privy token", "UNAUTHENTICATED");
-  }
-
-  if (response.status === 429) {
-    console.warn("[fetchPrivyUser] Privy rate limited token verification");
-    if (cached) {
-      rateLimitCache.set(token, { user: cached.user, expiresAt: now + RATE_LIMIT_CACHE_TTL_MS });
-      return cached.user;
-    }
-    if (rateLimited) {
-      return rateLimited.user;
-    }
-    throw new AppError("Failed to verify Privy token", "UNAUTHENTICATED");
-  }
-
-  if (!response.ok) {
-    tokenCache.delete(token);
-    rateLimitCache.delete(token);
-    if (response.status === 401 || response.status === 403) {
-      throw new AppError("Invalid Privy token", "UNAUTHENTICATED");
+  for (let attempt = 0; attempt < MAX_RETRY_ATTEMPTS; attempt++) {
+    let response: Response;
+    try {
+      response = await fetch("https://auth.privy.io/api/v1/users/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "privy-app-id": PRIVY_APP_ID!,
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      console.error("[fetchPrivyUser] Network error verifying Privy token", error);
+      if (cached) {
+        return cached.user;
+      }
+      throw new AppError("Failed to verify Privy token", "SERVICE_UNAVAILABLE");
     }
 
-    console.warn(
-      "[fetchPrivyUser] Unexpected Privy verification failure",
-      response.status,
-      response.statusText,
-    );
-    throw new AppError("Failed to verify Privy token", "UNAUTHENTICATED");
+    if (response.status === 429) {
+      console.warn("[fetchPrivyUser] Privy rate limited token verification");
+      if (cached) {
+        rateLimitCache.set(token, { user: cached.user, expiresAt: now + RATE_LIMIT_CACHE_TTL_MS });
+        return cached.user;
+      }
+      if (rateLimited) {
+        return rateLimited.user;
+      }
+      if (attempt < MAX_RETRY_ATTEMPTS - 1) {
+        await wait(getRetryDelay(response));
+        continue;
+      }
+      throw new AppError("Privy service is temporarily unavailable", "SERVICE_UNAVAILABLE");
+    }
+
+    if (!response.ok) {
+      tokenCache.delete(token);
+      rateLimitCache.delete(token);
+      if (response.status === 401 || response.status === 403) {
+        throw new AppError("Invalid Privy token", "UNAUTHENTICATED");
+      }
+
+      console.warn(
+        "[fetchPrivyUser] Unexpected Privy verification failure",
+        response.status,
+        response.statusText,
+      );
+      throw new AppError("Failed to verify Privy token", "SERVICE_UNAVAILABLE");
+    }
+
+    const payload = (await response.json()) as PrivyApiResponse;
+    const user = payload.user;
+    if (!user?.id) {
+      throw new AppError("Missing member id in Privy session", "UNAUTHENTICATED");
+    }
+
+    const linkedAccounts = normalizeLinkedAccounts(user.linked_accounts);
+    const emailAccount = linkedAccounts.find((account) => account.type === "email");
+
+    const createdAtValue = user.created_at;
+    const createdAt =
+      typeof createdAtValue === "number"
+        ? createdAtValue >= 1e12
+          ? createdAtValue
+          : createdAtValue * 1000
+        : Date.now();
+
+    const sessionUser: SessionUser = {
+      id: user.id,
+      createdAt,
+      linkedAccounts,
+      email: emailAccount?.email,
+    };
+
+    tokenCache.set(token, { user: sessionUser, expiresAt: now + TOKEN_CACHE_TTL_MS });
+    rateLimitCache.set(token, { user: sessionUser, expiresAt: now + RATE_LIMIT_CACHE_TTL_MS });
+
+    return sessionUser;
   }
 
-  const payload = (await response.json()) as PrivyApiResponse;
-  const user = payload.user;
-  if (!user?.id) {
-    throw new AppError("Missing member id in Privy session", "UNAUTHENTICATED");
-  }
-
-  const linkedAccounts = normalizeLinkedAccounts(user.linked_accounts);
-  const emailAccount = linkedAccounts.find((account) => account.type === "email");
-
-  const createdAtValue = user.created_at;
-  const createdAt =
-    typeof createdAtValue === "number"
-      ? createdAtValue >= 1e12
-        ? createdAtValue
-        : createdAtValue * 1000
-      : Date.now();
-
-  const sessionUser: SessionUser = {
-    id: user.id,
-    createdAt,
-    linkedAccounts,
-    email: emailAccount?.email,
-  };
-
-  tokenCache.set(token, { user: sessionUser, expiresAt: now + TOKEN_CACHE_TTL_MS });
-  rateLimitCache.set(token, { user: sessionUser, expiresAt: now + RATE_LIMIT_CACHE_TTL_MS });
-
-  return sessionUser;
+  // This should never be reached due to retry logic, but TypeScript needs it
+  throw new AppError("Failed to verify Privy token after all retry attempts", "SERVICE_UNAVAILABLE");
 }
 
 export async function getSessionUser() {

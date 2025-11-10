@@ -10,6 +10,7 @@ import {
   clearSessionCookie,
   signSession,
 } from "@/lib/auth/session";
+import { AppError } from "@/lib/errors";
 
 const LEGACY_PRIVY_COOKIES = [
   "privy-access-token",
@@ -52,7 +53,19 @@ export async function syncAuthToken(token: string) {
     return { success: true, memberId: user.id } as const;
   } catch (error) {
     console.error("[syncAuthToken] Failed to verify Privy token", error);
-    await clearSessionCookie();
+    if (error instanceof AppError) {
+      if (error.code === "SERVICE_UNAVAILABLE") {
+        return {
+          success: false,
+          error: "Privy is rate limiting right now—please try again in a moment",
+        } as const;
+      }
+
+      if (error.code === "UNAUTHENTICATED") {
+        await clearSessionCookie();
+      }
+    }
+
     return { success: false, error: "Failed to verify authentication" } as const;
   }
 }

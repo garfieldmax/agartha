@@ -5,6 +5,7 @@ export type ErrorCode =
   | "BUDGET_EXCEEDED"
   | "VALIDATION_FAILED"
   | "CONFLICT"
+  | "SERVICE_UNAVAILABLE"
   | "INTERNAL";
 
 export class AppError extends Error {
@@ -73,6 +74,7 @@ export function getStatusFromError(error: unknown): number {
     VALIDATION_FAILED: 400,
     CONFLICT: 409,
     BUDGET_EXCEEDED: 429,
+    SERVICE_UNAVAILABLE: 503,
     INTERNAL: 500,
   };
   return codeToStatus[response.error.code] ?? 500;
