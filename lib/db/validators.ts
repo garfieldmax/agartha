@@ -81,10 +81,22 @@ export const CommentCreateSchema = z.object({
   body: z.string().min(1).max(1500),
 });
 
+export const ProjectCreateSchema = z.object({
+  community_id: z.string().uuid(),
+  residency_id: z.string().uuid().nullable().optional(),
+  name: z.string().min(1).max(160),
+  description: z.string().max(2000).nullable().optional(),
+});
+
+export const ProjectUpdateSchema = z.object({
+  name: z.string().min(1).max(160).optional(),
+  description: z.string().max(2000).nullable().optional(),
+  residency_id: z.string().uuid().nullable().optional(),
+});
+
 export const ProjectJoinSchema = z.object({
   project_id: z.string().uuid(),
   role: z.enum(["contributor", "lead", "mentor", "observer"]).default("contributor"),
-  status: z.enum(["invited", "active", "completed", "dropped"]).default("active"),
 });
 
 export const OnboardingSubmissionSchema = z.object({

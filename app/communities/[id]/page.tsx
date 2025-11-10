@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCommunityWithChildren, listResidencies, listProjects } from "@/lib/db/repo";
 import { Card } from "@/components/ui/Card";
+import { ProjectListSection } from "@/components/communities/ProjectListSection";
+import { getOnboardingStatus } from "@/lib/onboarding";
 
 interface CommunityPageProps {
   params: Promise<{ id: string }>;
@@ -19,6 +20,8 @@ export default async function CommunityPage({ params }: CommunityPageProps) {
     listResidencies(community.id),
     listProjects({ communityId: community.id }),
   ]);
+  const { member } = await getOnboardingStatus();
+  const canManageProjects = member?.level === "manager";
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 space-y-8">
       <header className="space-y-2">
@@ -42,24 +45,13 @@ export default async function CommunityPage({ params }: CommunityPageProps) {
           </div>
         )}
       </section>
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-slate-900">Projects</h2>
-        {projects.length === 0 ? (
-          <Card padding="sm" className="text-sm text-slate-500">
-            No projects yet.
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2">
-            {projects.map((project) => (
-              <Link key={project.id} href={`/projects/${project.id}`}>
-                <Card className="space-y-2">
-                  <h3 className="text-base font-semibold text-slate-900">{project.name}</h3>
-                  {project.description && <p className="text-sm text-slate-600">{project.description}</p>}
-                </Card>
-              </Link>
-            ))}
-          </div>
-        )}
+      <section>
+        <ProjectListSection
+          communityId={community.id}
+          residencies={residencies}
+          projects={projects}
+          canManage={Boolean(canManageProjects)}
+        />
       </section>
     </div>
   );
