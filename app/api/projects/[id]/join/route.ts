@@ -1,8 +1,8 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getAuthenticatedMember } from "@/lib/auth/privy";
+import { getMember, getProject, upsertProjectParticipation } from "@/lib/db/repo";
 import { ProjectJoinSchema } from "@/lib/db/validators";
-import { upsertProjectParticipation } from "@/lib/db/repo";
 import { toErrorResponse, ValidationError, getStatusFromError } from "@/lib/errors";
 
 interface RouteParams {
@@ -18,13 +18,25 @@ export async function POST(request: Request, { params }: RouteParams) {
     if (!parsed.success) {
       throw new ValidationError("Invalid join payload", parsed.error.flatten());
     }
+    const [project, member] = await Promise.all([
+      getProject(parsed.data.project_id),
+      getMember(memberId),
+    ]);
+    if (!project) {
+      throw new ValidationError("Project not found", { projectId: parsed.data.project_id });
+    }
+    if (!member) {
+      throw new ValidationError("Member not found", { memberId });
+    }
+    const shouldAutoActivate = member.level === "resident" || member.level === "manager";
     const participation = await upsertProjectParticipation({
       project_id: parsed.data.project_id,
       member_id: memberId,
       role: parsed.data.role,
-      status: parsed.data.status,
+      status: shouldAutoActivate ? "active" : "invited",
     });
     revalidatePath(`/projects/${id}`);
+    revalidatePath(`/projects`);
     return NextResponse.json({ ok: true, data: participation });
   } catch (error) {
     const response = toErrorResponse(error);
