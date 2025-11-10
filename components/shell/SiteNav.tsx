@@ -9,6 +9,9 @@ type SiteNavProps = {
 };
 
 function resolveActive(pathname: string, searchParams: ReturnType<typeof useSearchParams>) {
+  if (pathname.startsWith("/projects")) {
+    return "projects" as const;
+  }
   if (pathname.startsWith("/members") || pathname.startsWith("/discover")) {
     return "members" as const;
   }
@@ -54,6 +57,17 @@ export function SiteNav({ canSeeMembers }: SiteNavProps) {
       >
         Communities
       </Link>
+      {canSeeMembers && (
+        <Link
+          href="/projects"
+          className={clsx(
+            "rounded-full px-3 py-1 transition",
+            active === "projects" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
+          )}
+        >
+          Projects
+        </Link>
+      )}
     </nav>
   );
 }

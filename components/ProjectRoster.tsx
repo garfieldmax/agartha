@@ -1,5 +1,6 @@
 import type { Member, ProjectParticipation } from "@/lib/db/types";
 import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 interface ParticipantWithMember extends ProjectParticipation {
   member?: Member | null;
@@ -7,9 +8,12 @@ interface ParticipantWithMember extends ProjectParticipation {
 
 interface ProjectRosterProps {
   participants: ParticipantWithMember[];
+  canApprove?: boolean;
+  onApprove?: (memberId: string) => void | Promise<void>;
+  approvingMemberId?: string | null;
 }
 
-export function ProjectRoster({ participants }: ProjectRosterProps) {
+export function ProjectRoster({ participants, canApprove = false, onApprove, approvingMemberId }: ProjectRosterProps) {
   if (participants.length === 0) {
     return (
       <Card padding="sm" className="text-sm text-slate-500">
@@ -21,7 +25,7 @@ export function ProjectRoster({ participants }: ProjectRosterProps) {
   return (
     <Card padding="sm" className="grid grid-cols-1 gap-3 md:grid-cols-2">
       {participants.map((participant) => (
-        <div key={`${participant.project_id}-${participant.member_id}`} className="flex items-center gap-3">
+        <div key={`${participant.project_id}-${participant.member_id}`} className="flex items-center justify-between gap-3">
           <div className="h-12 w-12 overflow-hidden rounded-full bg-slate-100">
             {participant.member?.avatar_url ? (
               <img
@@ -40,8 +44,20 @@ export function ProjectRoster({ participants }: ProjectRosterProps) {
               {participant.member?.display_name ?? participant.member_id}
             </span>
             <span className="text-xs text-slate-500">Role: {participant.role}</span>
-            <span className="text-xs text-slate-500">Status: {participant.status}</span>
+            <span className="text-xs text-slate-500">
+              Status: {participant.status}
+              {participant.status === "invited" && " (pending)"}
+            </span>
           </div>
+          {canApprove && participant.status === "invited" && (
+            <Button
+              size="sm"
+              onClick={() => onApprove?.(participant.member_id)}
+              disabled={approvingMemberId === participant.member_id}
+            >
+              {approvingMemberId === participant.member_id ? "Approving..." : "Approve"}
+            </Button>
+          )}
         </div>
       ))}
     </Card>
