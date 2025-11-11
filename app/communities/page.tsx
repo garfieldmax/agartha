@@ -14,8 +14,15 @@ export default async function CommunitiesPage({ searchParams }: CommunitiesPageP
   const communities = await listCommunities({ search: query });
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-semibold text-slate-900">Communities</h1>
-      <p className="text-sm text-slate-600">Browse the Nostra Community communities and find your next residency or project.</p>
+      <div className="space-y-2 mb-6">
+        <h1 className="text-3xl font-semibold text-slate-900">Communities</h1>
+        <p className="text-base text-slate-700">
+          Join hubs where like-minded people unite to work on projects and achieve shared goals.
+        </p>
+        <p className="text-sm text-slate-600">
+          Each community offers residencies, collaborative projects, and opportunities to connect with people who share your interests.
+        </p>
+      </div>
       <div className="mt-6">
         <CommunitySearchList
           communities={communities}

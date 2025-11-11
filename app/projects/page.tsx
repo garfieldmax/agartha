@@ -14,15 +14,29 @@ export default async function ProjectsIndexPage() {
   const participations = await listActiveParticipationsForMember(member.id);
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10 space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-3xl font-semibold text-slate-900">Your projects</h1>
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold text-slate-900">Your Projects</h1>
+        <p className="text-base text-slate-700">
+          Bring your skills to meaningful projects and make an impact in your communities.
+        </p>
         <p className="text-sm text-slate-600">
-          Projects where you are an active member across the Nostra community.
+          Track your active participations, contribute to shared goals, and earn recognition from peers.
         </p>
       </header>
       {participations.length === 0 ? (
-        <Card padding="sm" className="text-sm text-slate-500">
-          You are not part of any projects yet. Join a community project to get started.
+        <Card padding="sm" className="space-y-3 p-6">
+          <p className="text-sm text-slate-700 font-medium">
+            You&apos;re not part of any projects yet.
+          </p>
+          <p className="text-sm text-slate-600">
+            Browse communities to discover projects where you can contribute your skills and collaborate with like-minded people.
+          </p>
+          <Link 
+            href="/?tab=communities"
+            className="inline-block mt-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+          >
+            Explore Communities
+          </Link>
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">

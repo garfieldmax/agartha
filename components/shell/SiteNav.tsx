@@ -37,19 +37,9 @@ export function SiteNav({ canSeeMembers }: SiteNavProps) {
 
   return (
     <nav className="flex items-center gap-2 text-sm font-medium">
-      {canSeeMembers && (
-        <Link
-          href="/?tab=members"
-          className={clsx(
-            "rounded-full px-3 py-1 transition",
-            active === "members" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
-          )}
-        >
-          Members
-        </Link>
-      )}
       <Link
         href="/?tab=communities"
+        title="Join communities to collaborate on shared goals"
         className={clsx(
           "rounded-full px-3 py-1 transition",
           active === "communities" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
@@ -60,12 +50,25 @@ export function SiteNav({ canSeeMembers }: SiteNavProps) {
       {canSeeMembers && (
         <Link
           href="/projects"
+          title="Contribute your skills to meaningful projects"
           className={clsx(
             "rounded-full px-3 py-1 transition",
             active === "projects" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
           )}
         >
           Projects
+        </Link>
+      )}
+      {canSeeMembers && (
+        <Link
+          href="/?tab=members"
+          title="Find like-minded people with shared interests and goals"
+          className={clsx(
+            "rounded-full px-3 py-1 transition",
+            active === "members" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
+          )}
+        >
+          Members
         </Link>
       )}
     </nav>

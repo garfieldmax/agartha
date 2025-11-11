@@ -99,8 +99,15 @@ export default async function DiscoverPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-10">
-      <h1 className="text-3xl font-semibold text-slate-900">Discover Members</h1>
-      <p className="text-sm text-slate-600">Find new collaborators by mutual connections and shared interests.</p>
+      <div className="space-y-2 mb-6">
+        <h1 className="text-3xl font-semibold text-slate-900">Discover Members</h1>
+        <p className="text-base text-slate-700">
+          Find like-minded people through mutual connections and shared interests.
+        </p>
+        <p className="text-sm text-slate-600">
+          Connect with collaborators who share your goals and can contribute their skills to your projects.
+        </p>
+      </div>
       <div className="mt-6">
         <DiscoveryList mutuals={mutualItems} sharedInterests={sharedItems} trending={trendingItems} />
       </div>
