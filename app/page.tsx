@@ -31,10 +31,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       {tab === "members" ? (
         <div className="flex flex-col gap-4 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 p-8 md:p-10">
           <h1 className="text-4xl font-bold text-slate-900">
-            Meet the collaborators powering Nostra.
+            Find people you&apos;d love to build with, think with, and just hang out with.
           </h1>
           <p className="text-lg text-slate-700 max-w-3xl">
-            Explore member profiles to understand what they are seeking, the skills they bring to projects, and the recognition they have earned from peers.
+            Explore profiles to feel their vibe—what they care about, how they show up, and how others value them.
           </p>
 
           <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -44,7 +44,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 <h3 className="font-semibold text-slate-900">Interests &amp; Goals</h3>
               </div>
               <p className="text-sm text-slate-600">
-                See where members want to focus and align on shared outcomes before reaching out.
+                See what members are into and where they want to go, so you can spot shared directions before reaching out.
               </p>
             </div>
             <div className="flex flex-col gap-2">
@@ -53,7 +53,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 <h3 className="font-semibold text-slate-900">Skills &amp; Availability</h3>
               </div>
               <p className="text-sm text-slate-600">
-                Understand what each person can contribute and how they prefer to collaborate.
+                Understand what each person is great at and how they like to collaborate—so you can find a rhythm that works for both of you.
               </p>
             </div>
             <div className="flex flex-col gap-2">
@@ -62,7 +62,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 <h3 className="font-semibold text-slate-900">Attestations &amp; Kudos</h3>
               </div>
               <p className="text-sm text-slate-600">
-                Review recognition from communities and teammates to build trust quickly.
+                Browse recognition from communities and teammates to quickly sense who&apos;s worked with them, and how it felt.
               </p>
             </div>
           </div>
@@ -79,10 +79,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       ) : (
         <div className="flex flex-col gap-4 rounded-lg bg-gradient-to-br from-slate-50 to-slate-100 p-8 md:p-10">
           <h1 className="text-4xl font-bold text-slate-900">
-            Find Like-Minded People. Achieve Your Goals.
+            Find Your People. Grow Together.
           </h1>
           <p className="text-lg text-slate-700 max-w-3xl">
-            Join communities to connect with collaborators who share your interests, bring your skills to meaningful projects, and get recognized for your contributions.
+            Join communities where you can meet kindred spirits, share what you&apos;re into, and grow through projects, conversations, and shared wins.
           </p>
 
           {/* Value Pillars */}
@@ -93,7 +93,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 <h3 className="font-semibold text-slate-900">What You Seek</h3>
               </div>
               <p className="text-sm text-slate-600">
-                Share your interests and goals to find the right communities and collaborators.
+                Share what you&apos;re curious about, what you&apos;re working on, and the kind of people you&apos;d love to meet—so the right communities can find you.
               </p>
             </div>
             <div className="flex flex-col gap-2">
@@ -102,7 +102,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 <h3 className="font-semibold text-slate-900">What You Bring</h3>
               </div>
               <p className="text-sm text-slate-600">
-                Contribute your skills to projects and make an impact in your communities.
+                Show the skills, experience, and quirks that make you you, and put them to work in projects, jams, and collaborations that actually matter to you.
               </p>
             </div>
             <div className="flex flex-col gap-2">
@@ -111,7 +111,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 <h3 className="font-semibold text-slate-900">Recognition</h3>
               </div>
               <p className="text-sm text-slate-600">
-                Earn badges and kudos from peers as you contribute to shared goals.
+                Receive badges, kudos, and thank-yous from people who&apos;ve seen you show up—so your reputation reflects the real relationships you build.
               </p>
             </div>
           </div>
